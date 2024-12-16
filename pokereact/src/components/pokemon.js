@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 const Pokemon = (props) => {
+    
     const [nivel, setNivel] = useState(1);
     const [nombre, setNombre] = useState("");
     const [imagen1, setImagen1] = useState();
@@ -12,6 +13,18 @@ const Pokemon = (props) => {
 
     const params = useParams();
 
+    useEffect(() => {
+        //La sintaxis más moderna es async-await
+        axios.get("https://pokeapi.co/api/v2/pokemon/" + ID).then(response => {
+            setNombre(response.data.name)
+            setImagen1(response.data.sprites.front_default);
+            setImagen2(response.data.sprites.back_default);
+            setBaseHP(getStat("hp", response.data.stats));
+            setBaseAttack(getStat("attack", response.data.stats));
+            setBaseDefense(getStat("defense", response.data.stats));
+        })
+    }, []) //al pasar el array vacío, se ejecuta sólo inicialmente. Así rompemos el bucle infinito
+
     const ID = params.id;
 
     function getStat(nombreStat, arrayStats){
@@ -21,16 +34,6 @@ const Pokemon = (props) => {
         }
         return filteredArray[0].base_stat;
     }
-
-    //La sintaxis más moderna es async-await
-    axios.get("https://pokeapi.co/api/v2/pokemon/" + ID).then(response => {
-        setNombre(response.data.name)
-        setImagen1(response.data.sprites.front_default);
-        setImagen2(response.data.sprites.back_default);
-        setBaseHP(getStat("hp", response.data.stats));
-        setBaseAttack(getStat("attack", response.data.stats));
-        setBaseDefense(getStat("defense", response.data.stats));
-    })
 
     const onSubirNivel = (event) => {
         setNivel(n => n + 1)
